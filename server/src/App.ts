@@ -1,17 +1,17 @@
-import express, { Request, response, Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
-import axios, { AxiosError, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 
-require('dotenv').config()
+require('dotenv').config();
 
-const app = express()
+const app = express();
 
 app.use(cors());
 
 const clientId = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 
-let access_token = undefined;
+let access_token: string | undefined;
 
 const getAuthTokenCron = () => {
 
@@ -38,8 +38,55 @@ const getAuthTokenCron = () => {
 
 getAuthTokenCron()
 
-app.get("/", (req: Request, res: Response) => {
-  res.status(200).send("Hello World!");
+const baseSpotifyUrl = "https://api.spotify.com/v1";
+
+const waitForToken = (resolve?: any) => {
+  return new Promise(_resolve => {
+    if (access_token) {
+      resolve ? resolve() : _resolve();
+    } else {
+      setTimeout(() => {
+        waitForToken(_resolve);
+      }, 500);
+    }
+  })
+}
+
+const getAuthHeader = async () => {
+  await waitForToken();
+  return {
+    'Authorization': `Bearer ${access_token}`,
+  }
+}
+
+app.get("/artists", async (req: Request, res: Response) => {
+  const q = req.query.q;
+
+  if (!q) {
+    res.status(422).send('Missing mandatory parameter "q"');
+    return;
+  }
+
+  const type = 'artist';
+  const limit = req.query.limit ? req.query.limit : '50';
+  const offset = req.query.offset ? req.query.offset : '0';
+
+  const headers = await getAuthHeader();
+
+  const options: AxiosRequestConfig = {
+    params: {
+      q, type, limit, offset
+    },
+    headers
+  }
+
+  axios.get(`${baseSpotifyUrl}/search`, options).then((artists: AxiosResponse) => {
+    console.log(artists.data);
+    res.status(200).json(artists.data);
+  }).catch((err: AxiosError) => {
+    console.log('error fetching artist: ', err);
+    res.status(500).json(err.message);
+  })
 })
 
 app.listen(8000, () => {
