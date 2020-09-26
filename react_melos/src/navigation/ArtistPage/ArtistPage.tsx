@@ -1,7 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-function artistPage() {
+const artistPage = () => {
   return <div>Artist Page</div>;
-}
+};
 
 export default artistPage;

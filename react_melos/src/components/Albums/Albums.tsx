@@ -1,7 +1,7 @@
 import React from "react";
 
-function albums() {
+const albums = () => {
   return <div>Albums list</div>;
-}
+};
 
 export default albums;

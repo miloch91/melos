@@ -1,7 +1,7 @@
 import React from "react";
 
-function artists() {
+const artists = () => {
   return <div>Artists list</div>;
-}
+};
 
 export default artists;

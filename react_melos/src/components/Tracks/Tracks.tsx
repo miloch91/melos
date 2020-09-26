@@ -1,7 +1,7 @@
 import React from "react";
 
-function tracks() {
+const tracks = () => {
   return <div>Album tracks</div>;
-}
+};
 
 export default tracks;

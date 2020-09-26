@@ -7,7 +7,7 @@ import HomePage from "../HomePage/HomePage";
 
 import classes from "./Layout.module.css";
 
-function layout() {
+const layout = () => {
   return (
     <div className={classes.Layout}>
       <Switch>
@@ -18,6 +18,6 @@ function layout() {
       </Switch>
     </div>
   );
-}
+};
 
 export default layout;
