@@ -59,7 +59,7 @@ const getAuthHeader = async () => {
   }
 }
 
-app.get("/artists", async (req: Request, res: Response) => {
+app.get("/v1/artists", async (req: Request, res: Response) => {
   const q = req.query.q;
 
   if (!q) {

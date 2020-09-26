@@ -17,6 +17,7 @@ const header = (props: RouteComponentProps) => {
           textDecoration: "none",
           backgroundColor: "inherit",
           height: "100%",
+          color: "white",
         }}
       >
         <h3>Melos</h3>
