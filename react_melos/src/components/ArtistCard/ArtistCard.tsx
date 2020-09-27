@@ -1,10 +1,9 @@
 import React from "react";
-import { Redirect } from "react-router-dom";
 import { Artist } from "../../models/Artist";
-import Card from "../UI/Card/Card";
+import Card, { CARD_TYPE } from "../UI/Card/Card";
 
 export interface ArtistCardParams extends Artist {
-  clicked: () => void;
+  clicked?: () => void;
 }
 
 const artistCard = (artist: ArtistCardParams) => {
@@ -18,7 +17,13 @@ const artistCard = (artist: ArtistCardParams) => {
     title: artist.name,
   };
 
-  return <Card {...cardInfo} clicked={artist.clicked} />;
+  return (
+    <Card
+      {...cardInfo}
+      clicked={() => (artist.clicked ? artist.clicked() : null)}
+      type={CARD_TYPE.ARTIST}
+    />
+  );
 };
 
 export default artistCard;

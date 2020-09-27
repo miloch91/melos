@@ -4,7 +4,13 @@ import classes from "./Card.module.css";
 
 import logo from "../../../assets/defaultImg.png";
 
+export enum CARD_TYPE {
+  ARTIST,
+  ALBUM,
+}
+
 const card = (props: {
+  type?: CARD_TYPE;
   imgSrc?: string;
   title: string;
   subtitle?: string;
@@ -15,9 +21,24 @@ const card = (props: {
     imgPath = logo;
   }
 
+  let type = CARD_TYPE.ALBUM;
+  if (props.type !== undefined) {
+    type = props.type;
+  }
+
+  const imgStyle =
+    type === CARD_TYPE.ALBUM
+      ? {
+          width: "100%",
+        }
+      : {
+          borderRadius: "50%",
+          marginTop: "8px",
+        };
+
   return (
     <div className={classes.Card} onClick={props.clicked}>
-      <img src={imgPath} alt="Avatar" style={{ width: "100%" }} />
+      <img src={imgPath} alt="Avatar" style={imgStyle} />
       <div className="container">
         <h4>
           <b>{props.title}</b>
