@@ -13,6 +13,12 @@ export interface BaseAction {
   page?: number;
 }
 
+export interface BaseData {
+  data: Array<any>;
+  fetching: boolean;
+  page: number;
+}
+
 const baseReducer = (state: any, action: BaseAction) => {
   // console.log("in base reducer with: ", action);
   switch (action.type) {

@@ -1,15 +1,13 @@
-import { AxiosError } from "axios";
 import React, { useEffect, useReducer, useRef } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import AlbumCard from "../../components/AlbumCard/AlbumCard";
-import axios from "../../utils/axios-instance";
 import Spinner from "../../components/UI/Spinner/Spinner";
 
 import classes from "../../components/InfiniteScroll/InfiniteScroll.module.css";
 import { useInfiniteScroll } from "../../components/InfiniteScroll/useInfinitScroll";
 import albumReducer, { ALBUM_ACTION_TYPE } from "../../Reducers/AlbumReducer";
 import { Album } from "../../models/Album";
-import { BASE_ACTION_TYPE } from "../../Reducers/BaseReducer";
+import { useFetch } from "../../components/InfiniteScroll/useFetch";
 
 type TParams = { artistId: string };
 
@@ -26,57 +24,12 @@ const ArtistPage = (props: RouteComponentProps<TParams>) => {
   let bottomBoundaryRef = useRef(null);
   useInfiniteScroll(bottomBoundaryRef, albumDispatch);
 
-  // const fetchArtist = async () => {
-  //   console.log("logic to fetch the artist");
-  //   // const artist = await axios
-  //   //   .get(`/artists/${albumsData.artistId}`)
-  //   //   .catch((err: AxiosError) => {
-  //   //     console.log("failed to fech the artist info");
-  //   //   });
-  // };
-
-  useEffect(() => {
-    // console.log("albums data artistId changed ...", albumsData);
-    // fetchArtist();
-    const fetchAlbums = async () => {
-      console.log("fetching albums ;;;", albumsData);
-      // return;
-      if (albumsData.page < 0) {
-        return;
-      }
-
-      albumDispatch({
-        type: BASE_ACTION_TYPE.FETCHING_DATA,
-        fetching: true,
-      });
-
-      console.log("we are about to fetch albums with this: ", albumsData);
-      const apiResponse = await axios
-        .get(`/artists/${albumsData.artistId}/albums`, {
-          params: {
-            offset: 50 * albumsData.page,
-          },
-        })
-        .catch((err: AxiosError) => {
-          console.log("failed to fech the artist info");
-        });
-      const albums = apiResponse ? apiResponse.data.items : [];
-
-      albumDispatch({
-        type: BASE_ACTION_TYPE.FETCHING_DATA,
-        fetching: false,
-      });
-
-      albumDispatch({
-        type:
-          albumsData.page > 0
-            ? BASE_ACTION_TYPE.ADD_DATA
-            : BASE_ACTION_TYPE.SET_DATA,
-        data: albums,
-      });
-    };
-    fetchAlbums();
-  }, [albumsData.artistId, albumsData.page]);
+  useFetch(
+    albumsData,
+    albumDispatch,
+    () => `/artists/${albumsData.artistId}/albums`,
+    albumsData.artistId
+  );
 
   useEffect(() => {
     const artistId: string = props.match.params.artistId;
@@ -86,7 +39,6 @@ const ArtistPage = (props: RouteComponentProps<TParams>) => {
     });
   }, []);
 
-  console.log("here is the data: ", albumsData);
   const displayAlbums = albumsData.data.map((album: Album) => {
     return (
       <AlbumCard

@@ -126,6 +126,38 @@ app.get("/v1/artists/:id/albums", async (req: Request, res: Response) => {
     console.log('error fetching albums: ', err);
     res.status(500).json(err.message);
   })
+});
+
+app.get("/v1/albums/:id/tracks", async (req: Request, res: Response) => {
+
+  const limit = req.query.limit ? req.query.limit : '50';
+  const offset = req.query.offset ? req.query.offset : '0';
+
+  const headers = await getAuthHeader();
+
+  const options: AxiosRequestConfig = {
+    params: {
+      limit, offset
+    },
+    headers
+  }
+
+  axios.get(`${baseSpotifyUrl}/albums/${req.params.id}/tracks`, options).then((albumTracks: AxiosResponse) => {
+    console.log(albumTracks.data);
+    const prettyData = albumTracks.data.items.map((item: any) => {
+      return {
+        id: item.id,
+        artists: item.artists,
+        track_number: item.track_number,
+        duration_ms: item.duration_ms,
+        name: item.name
+      }
+    })
+    res.status(200).json({ items: prettyData });
+  }).catch((err: AxiosError) => {
+    console.log('error fetching album tracks: ', err);
+    res.status(500).json(err.message);
+  })
 })
 
 app.listen(8000, () => {
