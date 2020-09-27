@@ -11,14 +11,14 @@
 }
 
 /* Add rounded corners to the top left and the top right corner of the image */
-img {
+.Card img {
   border-radius: 5px 5px 0 0;
   height: 180px;
   width: 180px;
   object-fit: cover;
 }
 
-h4 {
+.Card h4 {
   margin: 8px 2px;
   white-space: nowrap;
   overflow: hidden;

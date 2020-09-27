@@ -1,6 +1,7 @@
 import React from "react";
 
 import classes from "./Banner.module.css";
+import logo from "../../../assets/defaultImg.png";
 
 export enum BannerType {
   ALBUM,
@@ -8,17 +9,22 @@ export enum BannerType {
 }
 
 export interface BannerParams {
-  imgSrc: string;
+  imgSrc?: string;
   title: string;
   type: BannerType;
   subtitle?: string;
 }
 
 const banner = (bannerInfo: BannerParams) => {
+  let imgPath = bannerInfo.imgSrc;
+  if (!imgPath) {
+    imgPath = logo;
+  }
+
   return (
     <div className={classes.RootContainer}>
       <div className={classes.LeftContainer}>
-        <img src={bannerInfo.imgSrc} />
+        <img src={imgPath} />
       </div>
       <div className={classes.RightContainer}>
         {bannerInfo.type === BannerType.ALBUM ? <h6>Album</h6> : null}

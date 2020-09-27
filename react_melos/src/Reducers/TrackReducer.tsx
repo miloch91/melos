@@ -3,6 +3,7 @@ import baseReducer, { BaseAction, BASE_ACTION_TYPE } from "./BaseReducer";
 
 enum TRACK_ACTIONS {
   SET_ALBUM_ID = -2,
+  SET_ALBUM = -1,
 }
 
 export const TRACK_ACTION_TYPE = {
@@ -21,6 +22,8 @@ const trackReducer = (state: any, action: TrackAction) => {
   switch (action.type) {
     case TRACK_ACTION_TYPE.SET_ALBUM_ID:
       return { ...state, albumId: action.albumId };
+    case TRACK_ACTION_TYPE.SET_ALBUM:
+      return { ...state, album: action.album };
     default:
       return baseReducer(state, action);
   }

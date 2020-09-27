@@ -8,6 +8,12 @@ import { useFetch } from "../../components/InfiniteScroll/useFetch";
 import trackReducer, { TRACK_ACTION_TYPE } from "../../Reducers/TrackReducer";
 import { Track } from "../../models/Track";
 import TrackItem from "../../components/TrackItem/TrackItem";
+import axios from "../../utils/axios-instance";
+import Banner, {
+  BannerParams,
+  BannerType,
+} from "../../components/UI/Banner/Banner";
+import { Album } from "../../models/Album";
 
 type TParams = { albumId: string };
 
@@ -33,6 +39,21 @@ const AlbumPage = (props: RouteComponentProps<TParams>) => {
 
   useEffect(() => {
     const albumId: string = props.match.params.albumId;
+
+    const fetchAlbum = async (albumId: string) => {
+      const album = await axios.get(`/albums/${albumId}`);
+      if (!album || !album.data) {
+        console.log("error fetching album ...");
+        return;
+      }
+      trackDispatch({
+        type: TRACK_ACTION_TYPE.SET_ALBUM,
+        album: album.data,
+      });
+    };
+
+    fetchAlbum(albumId);
+
     trackDispatch({
       type: TRACK_ACTION_TYPE.SET_ALBUM_ID,
       albumId,
@@ -48,8 +69,26 @@ const AlbumPage = (props: RouteComponentProps<TParams>) => {
     spinner = <Spinner />;
   }
 
+  let albumBanner = null;
+  if (tracksData.album) {
+    const album: Album = tracksData.album;
+
+    const bannerParams: BannerParams = {
+      title: album.name,
+      type: BannerType.ALBUM,
+      subtitle: `${album.total_tracks} Tracks - ${album.release_date}`,
+    };
+
+    if (album.images && album.images.length > 0) {
+      bannerParams.imgSrc = album.images[0].url;
+    }
+
+    albumBanner = <Banner {...bannerParams} />;
+  }
+
   return (
     <>
+      {albumBanner}
       <div className={classes.FlexContainer}>{displayTracks}</div>
       <div
         id="page-bottom-boundary"

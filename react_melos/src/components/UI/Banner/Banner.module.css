@@ -1,19 +1,26 @@
 .RootContainer {
-  height: 200px;
-  background-color: lightgray;
+  height: 22%;
+  max-height: 300px;
+  background-color: #272727;
   display: flex;
   flex-direction: row;
+  margin-top: -8px;
 }
 
-.LeftContainer {
-  flex: 1;
-  height: 100%;
+.LeftContainer img {
+  margin-bottom: -3px;
 }
 
 .RightContainer {
-  flex: 1;
+  flex: 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+.LeftContainer img {
+  width: 100%;
   height: 100%;
+  object-fit: cover;
+  max-width: 500px;
 }
