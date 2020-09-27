@@ -160,6 +160,48 @@ app.get("/v1/albums/:id/tracks", async (req: Request, res: Response) => {
   })
 })
 
+app.get("/v1/albums/:id", async (req: Request, res: Response) => {
+
+  const headers = await getAuthHeader();
+  const options: AxiosRequestConfig = {
+    headers
+  }
+
+  axios.get(`${baseSpotifyUrl}/albums/${req.params.id}`, options).then((album: AxiosResponse) => {
+    const albumInfo = {
+      id: album.data.id,
+      name: album.data.name,
+      images: album.data.images,
+      total_tracks: album.data.total_tracks,
+      release_date: album.data.release_date
+    }
+    res.status(200).json(albumInfo);
+  }).catch((err: AxiosError) => {
+    console.log('error fetching album: ', err);
+    res.status(500).json(err.message);
+  })
+});
+
+app.get("/v1/artists/:id", async (req: Request, res: Response) => {
+
+  const headers = await getAuthHeader();
+  const options: AxiosRequestConfig = {
+    headers
+  }
+
+  axios.get(`${baseSpotifyUrl}/artists/${req.params.id}`, options).then((artist: AxiosResponse) => {
+    const artistInfo = {
+      id: artist.data.id,
+      name: artist.data.name,
+      images: artist.data.images,
+    }
+    res.status(200).json(artistInfo);
+  }).catch((err: AxiosError) => {
+    console.log('error fetching album: ', err);
+    res.status(500).json(err.message);
+  })
+});
+
 app.listen(8000, () => {
   console.log('Server Started at Port, 8000')
 })
