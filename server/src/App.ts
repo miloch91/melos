@@ -29,6 +29,7 @@ const getAuthTokenCron = () => {
     console.log(res.data)
     // before expire refresh the token
     const refreshTimer = (res.data.expires_in - 60) * 1000;
+    console.log('timer to refresh is: ', refreshTimer);
     setTimeout(getAuthTokenCron, refreshTimer);
   }).catch((err: AxiosError) => {
     access_token = undefined;

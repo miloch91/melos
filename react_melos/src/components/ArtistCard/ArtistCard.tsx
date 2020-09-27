@@ -1,19 +1,24 @@
 import React from "react";
+import { Redirect } from "react-router-dom";
 import { Artist } from "../../models/Artist";
 import Card from "../UI/Card/Card";
 
-const artistCard = (props: Artist) => {
+export interface ArtistCardParams extends Artist {
+  clicked: () => void;
+}
+
+const artistCard = (artist: ArtistCardParams) => {
   let imgSrc;
-  if (props.images.length > 0) {
-    imgSrc = props.images[props.images.length > 2 ? 1 : 0].url;
+  if (artist.images.length > 0) {
+    imgSrc = artist.images[artist.images.length > 2 ? 1 : 0].url;
   }
 
   const cardInfo = {
     imgSrc,
-    title: props.name,
+    title: artist.name,
   };
 
-  return <Card {...cardInfo} />;
+  return <Card {...cardInfo} clicked={artist.clicked} />;
 };
 
 export default artistCard;

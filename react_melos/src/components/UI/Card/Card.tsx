@@ -4,14 +4,19 @@ import classes from "./Card.module.css";
 
 import logo from "../../../assets/defaultImg.png";
 
-const card = (props: { imgSrc?: string; title: string; subtitle?: string }) => {
+const card = (props: {
+  imgSrc?: string;
+  title: string;
+  subtitle?: string;
+  clicked: () => void;
+}) => {
   let imgPath = props.imgSrc;
   if (!imgPath) {
     imgPath = logo;
   }
 
   return (
-    <div className={classes.Card}>
+    <div className={classes.Card} onClick={props.clicked}>
       <img src={imgPath} alt="Avatar" style={{ width: "100%" }} />
       <div className="container">
         <h4>

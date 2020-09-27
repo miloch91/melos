@@ -2,44 +2,22 @@ import { AxiosError, AxiosResponse } from "axios";
 import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import ArtistCard from "../../components/ArtistCard/ArtistCard";
 import SearchBar from "../../components/UI/SearchBar/SearchBar";
+import Spinner from "../../components/UI/Spinner/Spinner";
 import { Artist } from "../../models/Artist";
 import axios from "../../utils/axios-instance";
 
 import classes from "./HomePage.module.css";
+import artistReducer, {
+  ARTIST_ACTION_TYPE,
+} from "./InfiniteScroll/ArtistReducer";
 
-const HomePage = () => {
-  const artistReducer = (state: any, action: any) => {
-    switch (action.type) {
-      case "SET_ARTISTS":
-        return { ...state, artists: action.artists };
-      case "STACK_ARTISTS":
-        return { ...state, artists: state.artists.concat(action.artists) };
-      case "FETCHING_ARTISTS":
-        return { ...state, fetching: action.fetching };
-      case "SEARCHING_ARTISTS":
-        return { ...state, searchedValue: action.searchedValue };
-      default:
-        return state;
-    }
-  };
+const HomePage = (props: any) => {
   const [artistsData, artistDispatch] = useReducer(artistReducer, {
     artists: [],
-    fetching: true,
+    fetching: false,
     searchedValue: "",
+    page: -1,
   });
-  // next code block goes here
-
-  const pageReducer = (state: any, action: any) => {
-    switch (action.type) {
-      case "RESET_PAGE":
-        return { ...state, page: -1 };
-      case "ADVANCE_PAGE":
-        return { ...state, page: state.page + 1 };
-      default:
-        return state;
-    }
-  };
-  const [pager, pagerDispatch] = useReducer(pageReducer, { page: -1 });
 
   // implement infinite scrolling with intersection observer
   let bottomBoundaryRef = useRef(null);
@@ -48,80 +26,105 @@ const HomePage = () => {
       new IntersectionObserver((entries) => {
         entries.forEach((en) => {
           if (en.intersectionRatio > 0) {
-            pagerDispatch({ type: "ADVANCE_PAGE" });
+            artistDispatch({ type: ARTIST_ACTION_TYPE.ADVANCE_PAGE });
           }
         });
       }).observe(node);
     },
-    [pagerDispatch]
+    [artistDispatch]
   );
-
   useEffect(() => {
     if (bottomBoundaryRef.current) {
       scrollObserver(bottomBoundaryRef.current);
     }
   }, [scrollObserver, bottomBoundaryRef]);
 
-  const onNewSearchEvent = (searchedValue: string) => {
-    artistDispatch({ type: "SEARCHING_ARTISTS", searchedValue });
-    if (!searchedValue && searchedValue.length === 0) {
-      artistDispatch({ type: "SET_ARTISTS", artists: [] });
-      pagerDispatch({ type: "RESET_PAGE" });
-      return;
-    }
-    artistDispatch({ type: "FETCHING_ARTISTS", fetching: true });
-    axios
-      .get("/artists", {
-        params: {
-          q: searchedValue,
-        },
-      })
-      .then((res: AxiosResponse) => {
-        const newArtists: Array<Artist> = res.data.artists.items;
-        artistDispatch({ type: "SET_ARTISTS", artists: newArtists });
-        artistDispatch({ type: "FETCHING_ARTISTS", fetching: false });
-      })
-      .catch((err: AxiosError) => {
-        artistDispatch({ type: "FETCHING_ARTISTS", fetching: false });
-      });
-  };
-
   useEffect(() => {
-    if (pager.page <= 0) {
-      // we already loaded the first time so do nothing
+    console.log(artistsData);
+    if (artistsData.page < 0) {
+      // ignore first intersection with page
       return;
     }
-    artistDispatch({ type: "FETCHING_ARTISTS", fetching: true });
+    if (!artistsData.searchedValue || artistsData.searchedValue.length === 0) {
+      artistDispatch({ type: ARTIST_ACTION_TYPE.SET_ARTISTS, artists: [] });
+      return;
+    }
+    artistDispatch({
+      type: ARTIST_ACTION_TYPE.FETCHING_ARTISTS,
+      fetching: true,
+    });
     axios
       .get("/artists", {
         params: {
           q: artistsData.searchedValue,
-          offset: 50 * pager.page,
+          offset: 50 * artistsData.page,
         },
       })
       .then((res: AxiosResponse) => {
         const newArtists: Array<Artist> = res.data.artists.items;
-        artistDispatch({ type: "STACK_ARTISTS", artists: newArtists });
-        artistDispatch({ type: "FETCHING_ARTISTS", fetching: false });
+        artistDispatch({
+          type:
+            artistsData.page > 0
+              ? ARTIST_ACTION_TYPE.STACK_ARTISTS
+              : ARTIST_ACTION_TYPE.SET_ARTISTS,
+          artists: newArtists,
+        });
+        artistDispatch({
+          type: ARTIST_ACTION_TYPE.FETCHING_ARTISTS,
+          fetching: false,
+        });
       })
       .catch((err: AxiosError) => {
-        artistDispatch({ type: "FETCHING_ARTISTS", fetching: false });
+        artistDispatch({
+          type: ARTIST_ACTION_TYPE.FETCHING_ARTISTS,
+          fetching: false,
+        });
       });
-  }, [pager.page]);
+  }, [artistsData.page, artistsData.searchedValue]);
+
+  // on new search in url do the search
+  useEffect(() => {
+    console.log("test", props.location);
+    const searchTermBuilder = props.location.search.split("=");
+
+    artistDispatch({
+      type: ARTIST_ACTION_TYPE.SEARCHING_ARTISTS,
+      searchedValue: searchTermBuilder.length > 1 ? searchTermBuilder[1] : "",
+    });
+  }, [props.location.search]);
 
   const displayArtists = artistsData.artists.map((artist: Artist) => {
-    return <ArtistCard key={artist.id} {...artist} />;
+    return (
+      <ArtistCard
+        key={artist.id}
+        {...artist}
+        clicked={() => {
+          props.history.push(`/artists/${artist.id}`);
+        }}
+      />
+    );
   });
+
+  let spinner = null;
+  if (artistsData.fetching) {
+    spinner = <Spinner />;
+  }
 
   return (
     <div>
-      <SearchBar onNewSearchEvent={onNewSearchEvent} />
+      <SearchBar
+        onNewSearchEvent={(searchedValue: string) => {
+          props.history.push(`/home?search=${searchedValue}`);
+        }}
+        searchedValue={artistsData.searchedValue}
+      />
       <div className={classes.ArtistContainer}>{displayArtists}</div>
       <div
         id="page-bottom-boundary"
         // style={{ border: "1px solid red" }}
         ref={bottomBoundaryRef}
       ></div>
+      {spinner}
     </div>
   );
 };

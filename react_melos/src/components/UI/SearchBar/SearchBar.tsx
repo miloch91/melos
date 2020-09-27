@@ -4,6 +4,7 @@ import classes from "./SearchBar.module.css";
 
 const searchBar = (props: {
   onNewSearchEvent: (searchedValue: string) => void;
+  searchedValue: string;
 }) => {
   let typingTimeout: NodeJS.Timeout;
   const optimiseRequests = (e: ChangeEvent<HTMLInputElement>) => {
@@ -20,6 +21,7 @@ const searchBar = (props: {
   return (
     <input
       type="search"
+      defaultValue={props.searchedValue}
       className={classes.SearchBar}
       onChange={optimiseRequests}
       placeholder="Search for your favorite artist..."
