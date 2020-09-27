@@ -90,6 +90,44 @@ app.get("/v1/artists", async (req: Request, res: Response) => {
   })
 })
 
+app.get("/v1/artists/:id/albums", async (req: Request, res: Response) => {
+
+  const limit = req.query.limit ? req.query.limit : '50';
+  const offset = req.query.offset ? req.query.offset : '0';
+
+  const headers = await getAuthHeader();
+
+  const options: AxiosRequestConfig = {
+    params: {
+      limit, offset
+    },
+    headers
+  }
+
+  axios.get(`${baseSpotifyUrl}/artists/${req.params.id}/albums`, options).then((albums: AxiosResponse) => {
+    const albumsData = albums.data.items.reduce((finalData: any, currentAlbum: any) => {
+      finalData[currentAlbum.name] = {
+        id: currentAlbum.id,
+        name: currentAlbum.name,
+        release_date: currentAlbum.release_date,
+        images: currentAlbum.images,
+        album_group: currentAlbum.album_group,
+        album_type: currentAlbum.album_type,
+        total_tracks: currentAlbum.total_tracks,
+        type: currentAlbum.type
+      }
+      return finalData;
+    }, {});
+    const prettyData = Object.keys(albumsData).map((key: string) => {
+      return albumsData[key];
+    })
+    res.status(200).json({ items: prettyData });
+  }).catch((err: AxiosError) => {
+    console.log('error fetching albums: ', err);
+    res.status(500).json(err.message);
+  })
+})
+
 app.listen(8000, () => {
   console.log('Server Started at Port, 8000')
 })
