@@ -15,8 +15,6 @@ let access_token: string | undefined;
 
 const getAuthTokenCron = () => {
 
-  console.log('fetching authentication token');
-
   const authorisation: string = Buffer.from(clientId + ':' + clientSecret).toString('base64');
 
   axios.post('https://accounts.spotify.com/api/token',
@@ -26,10 +24,8 @@ const getAuthTokenCron = () => {
     }
   }).then((res: AxiosResponse) => {
     access_token = res.data.access_token;
-    console.log(res.data)
     // before expire refresh the token
     const refreshTimer = (res.data.expires_in - 60) * 1000;
-    console.log('timer to refresh is: ', refreshTimer);
     setTimeout(getAuthTokenCron, refreshTimer);
   }).catch((err: AxiosError) => {
     access_token = undefined;
@@ -82,7 +78,6 @@ app.get("/v1/artists", async (req: Request, res: Response) => {
   }
 
   axios.get(`${baseSpotifyUrl}/search`, options).then((artists: AxiosResponse) => {
-    console.log(artists.data);
     res.status(200).json(artists.data);
   }).catch((err: AxiosError) => {
     console.log('error fetching artist: ', err);
@@ -143,7 +138,6 @@ app.get("/v1/albums/:id/tracks", async (req: Request, res: Response) => {
   }
 
   axios.get(`${baseSpotifyUrl}/albums/${req.params.id}/tracks`, options).then((albumTracks: AxiosResponse) => {
-    console.log(albumTracks.data);
     const prettyData = albumTracks.data.items.map((item: any) => {
       return {
         id: item.id,
