@@ -24,7 +24,7 @@ const banner = (bannerInfo: BannerParams) => {
   return (
     <div className={classes.RootContainer}>
       <div className={classes.LeftContainer}>
-        <img src={imgPath} />
+        <img alt="Album" src={imgPath} />
       </div>
       <div className={classes.RightContainer}>
         {bannerInfo.type === BannerType.ALBUM ? <h6>Album</h6> : null}

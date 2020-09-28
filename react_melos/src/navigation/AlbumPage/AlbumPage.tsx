@@ -58,6 +58,7 @@ const AlbumPage = (props: RouteComponentProps<TParams>) => {
       type: TRACK_ACTION_TYPE.SET_ALBUM_ID,
       albumId,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const displayTracks = tracksData.data.map((track: Track) => {

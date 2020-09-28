@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ArtistInfo } from "../../models/Artist";
 import { Track } from "../../models/Track";
 
 import classes from "./TrackItem.module.css";
@@ -26,7 +25,7 @@ const trackItem = (track: Track) => {
   const millisToMinutesAndSeconds = (millis: number) => {
     var minutes = Math.floor(millis / 60000);
     var seconds = ((millis % 60000) / 1000).toFixed(0);
-    return seconds == "60"
+    return seconds === "60"
       ? minutes + 1 + ":00"
       : minutes + ":" + (parseInt(seconds) < 10 ? "0" : "") + seconds;
   };

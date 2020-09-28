@@ -37,6 +37,7 @@ const ArtistPage = (props: RouteComponentProps<TParams>) => {
       type: ALBUM_ACTION_TYPE.SET_ARTIST_ID,
       artistId,
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const displayAlbums = albumsData.data.map((album: Album) => {

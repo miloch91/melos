@@ -49,5 +49,6 @@ export const useFetch = (
       });
     };
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [elementToWatch, data.page]);
 };
